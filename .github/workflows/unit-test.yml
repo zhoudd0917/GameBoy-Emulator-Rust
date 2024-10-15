@@ -1,0 +1,62 @@
+name: "Unit-Test"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+
+jobs:
+  test_Ubuntu:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: install_dependencies
+      run: |
+        sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu `lsb_release -sc` main universe restricted multiverse"
+        sudo apt-get update -y -qq
+        sudo apt-get install libsdl2-dev
+    - name: Build
+      run: |
+        rustc --version
+        cargo build --verbose
+    - name: Test
+      run: cargo test --verbose
+      
+  test_MacOS:
+
+    runs-on: macOS-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: install_dependencies
+      run: | 
+        brew install SDL2
+        brew install rustup
+        rustup-init -y --default-toolchain stable        
+    - name: Build
+      run: |
+        export PATH="$HOME/.cargo/bin:$PATH"
+        export LIBRARY_PATH="$LIBRARY_PATH:/usr/local/lib"
+        cargo build --verbose
+    - name: Test
+      run: |
+        export PATH="$HOME/.cargo/bin:$PATH"
+        export LIBRARY_PATH="$LIBRARY_PATH:/usr/local/lib"
+        cargo test --verbose
+      
+  test_Windows:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build
+      run: cargo build --verbose
+    - name: Test
+      run: cargo test --verbose
